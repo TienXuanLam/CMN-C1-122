@@ -1,0 +1,20 @@
+id: CMN-C1-122
+name: cmn-c1-122
+namespace: cmn
+version: "1.1.1"
+description: Enterprise API change impact Q&A agent — embed query → retrieve API KB → analyze impact → generate report.
+enabled: true
+category: "Cat 1"
+generation_mode: "llm"
+industry: CMN
+base_type: AgentBaseGraph
+class: "src.graph.graph.APIChangeImpactGraph"
+required_trust_level: "VERIFIED_EXTERNAL"
+
+requires:
+  extras: [openai, platform-rag]
+  secrets:
+    - AZURE_OPENAI_API_KEY
+    - AZURE_OPENAI_ENDPOINT
+    - AZURE_OPENAI_DEPLOYMENT
+    - QDRANT_URL

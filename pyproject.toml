@@ -1,0 +1,61 @@
+[project]
+name = "cmn-c1-122"
+version = "1.1.1"
+description = "EnterpriseAPIChangeImpactAgent — AgentCore Template (Cat 1, CMN)"
+requires-python = ">=3.11"
+dependencies = [
+    # `marketplace` provides the runner's PostgreSQL stack (asyncpg) used by
+    # cli.py; `openai` provides AzureOpenAIClient's dependencies
+    # (langchain-openai included transitively -- do not pin it directly).
+    # `platform-rag` provides AzureEmbedding's agenticstar_platform.rag.embedding
+    # dependency -- this agent's own environment only has Azure OpenAI
+    # credentials provisioned (no plain OpenAI key), and the SDK's plain
+    # OpenAIClient/OpenAIEmbedding are what this agent used to call; swapped
+    # to the Azure-native adapters (2026-09-11) because OpenAIEmbedding is a
+    # stub in this wheel (embed_query() unconditionally raises
+    # NotImplementedError -- verified live against 1.0.3), so it could never
+    # have embedded a real query regardless of which API key was supplied.
+    "agenticstar-agentcore[marketplace,openai,platform-rag]==1.0.3",
+    "pyyaml==6.0.1",
+    "qdrant-client==1.18.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "pytest-cov==5.0.0",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.4.4",
+    "mypy==1.10.0",
+]
+
+[build-system]
+requires = ["setuptools==68.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.mypy]
+# The platform-rag extra pulls in qdrant-client, whose transitive numpy
+# dependency ships .pyi stubs using PEP 695 `type X = ...` syntax that
+# requires python_version >= 3.12 to parse -- mypy crashed at the
+# stub-parsing stage before reaching any of this template's own code.
+# Bumped to match the interpreter every environment with this numpy pin
+# actually runs (same fix already applied elsewhere in the fleet).
+python_version = "3.12"
+strict = true
+# The published agenticstar-agentcore wheel ships no py.typed marker / stubs
+# for framework.*/shared.* -- ignore_missing_imports below makes every
+# framework/shared symbol resolve to Any, which strict's
+# disallow_subclassing_any would otherwise reject for every node/graph class
+# in this template (FunctionNode, AgentBaseGraph, AgentState are all
+# framework.* base classes). Disabled fleet-wide rather than per-class: it is
+# a consequence of the SDK's own missing stubs, not a signal about this
+# template's code quality.
+disallow_subclassing_any = false
+
+[[tool.mypy.overrides]]
+module = ["framework.*", "shared.*"]
+ignore_missing_imports = true

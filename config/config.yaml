@@ -1,0 +1,19 @@
+max_retry: 2
+memory_enabled: false
+timeout_s: 60
+hitl:
+  enabled: false
+
+# Retrieval configuration
+retrieval_score_threshold: 0.75
+retrieval_top_k: 5
+qdrant_collection: api_inventory
+
+# LLM configuration
+# llm_model is not set here: AzureOpenAIClient sources its model from the
+# AZURE_OPENAI_DEPLOYMENT secret, not from config.yaml.
+# embedding_model must be an Azure embedding-capable deployment name (e.g.
+# a text-embedding-3-small deployment) -- no such deployment is provisioned
+# yet, so this value is currently a placeholder, not a working deployment.
+embedding_model: text-embedding-3-small
+embedding_dimensions: 1536
